@@ -1,0 +1,36 @@
+{
+    "title": "reverse_words",
+    "tests": [
+      {
+        "desc": 1,
+        "args": ["hello world here"],
+        "exp": "here world hello"
+      },
+      {
+        "desc": 2,
+        "args": ["Hi"],
+        "exp": "iH"
+      },
+      {
+        "desc": 3,
+        "args": ["H"],
+        "exp": "H"
+      },
+      {
+        "desc": 4,
+        "args": ["H "],
+        "exp": "H"
+      },
+      {
+        "desc": 5,
+        "args": ["H E L L O"],
+        "exp": "O L L E H"
+      },
+      {
+        "desc": 6,
+        "args": ["N O O N"],
+        "exp": "N O O N"
+      }
+    ]
+  }
+  
