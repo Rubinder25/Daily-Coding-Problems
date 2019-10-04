@@ -27,6 +27,7 @@ function reverse_words_single_loop(s) {
   s = s.trim();
   const reverse_words_arr = [];
   let startIndex = 0;
+
   for (let i = 0; i < s.length; i++) {
     if (s[i] === ' ') {
       reverse_words_arr.unshift(s.slice(startIndex, i));
