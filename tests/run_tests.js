@@ -172,48 +172,47 @@ fileScannerSync({
   recursive: true,
   excludeList: ['tests', '.git'],
   callback: (relativePath, isDir) => {
-    if (!isDir) {
-      if (
-        path.extname(relativePath) === '.js' &&
-        (testSpecified === undefined ||
-          relativePath.indexOf(testSpecified) !== -1)
-      ) {
-        const testPath = path.join(path.dirname(relativePath), 'test.json');
+    if (
+      !isDir &&
+      path.extname(relativePath) === '.js' &&
+      (testSpecified === undefined ||
+        relativePath.indexOf(testSpecified) !== -1)
+    ) {
+      const testPath = path.join(path.dirname(relativePath), 'test.json');
 
-        if (fs.existsSync(testPath)) {
-          totalFilesTested++;
+      if (fs.existsSync(testPath)) {
+        totalFilesTested++;
 
-          const tSuite = {
-            fileName: '',
-            funcName: '',
-            tests: [],
-          };
+        const tSuite = {
+          fileName: '',
+          funcName: '',
+          tests: [],
+        };
 
-          tSuite.fileName = path.basename(relativePath);
-          const pathImport = path.join('..' + path.sep, relativePath);
-          const funcsToBeTested = getImports(pathImport);
+        tSuite.fileName = path.basename(relativePath);
+        const pathImport = path.join('..' + path.sep, relativePath);
+        const funcsToBeTested = getImports(pathImport);
 
-          if (!tests[testPath]) {
-            tests[testPath] = JSON.parse(fs.readFileSync(testPath, 'utf-8'));
-          }
-
-          funcsToBeTested.forEach((func, index) => {
-            tSuite.funcName = func.name;
-
-            tests[testPath].tests.forEach(test => {
-              const testRes = runTest(test, func);
-              tSuite.tests.push(Object.assign(test, testRes));
-
-              if (testRes.hasPassed) {
-                totalTestsPassed++;
-              } else {
-                totalTestsFailed++;
-              }
-            });
-            displayTestSuite(tSuite);
-            tSuite.tests = [];
-          });
+        if (!tests[testPath]) {
+          tests[testPath] = JSON.parse(fs.readFileSync(testPath, 'utf-8'));
         }
+
+        funcsToBeTested.forEach((func, index) => {
+          tSuite.funcName = func.name;
+
+          tests[testPath].tests.forEach(test => {
+            const testRes = runTest(test, func);
+            tSuite.tests.push(Object.assign(test, testRes));
+
+            if (testRes.hasPassed) {
+              totalTestsPassed++;
+            } else {
+              totalTestsFailed++;
+            }
+          });
+          displayTestSuite(tSuite);
+          tSuite.tests = [];
+        });
       }
     }
   },
