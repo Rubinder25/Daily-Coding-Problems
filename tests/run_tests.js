@@ -70,14 +70,14 @@ function fileScannerSync(args) {
 }
 
 function isEqual(a, b) {
-  if (typeof a !== 'object' && typeof b !== ' object') {
+  if (typeof a !== 'object' && typeof b !== 'object') {
     return a === b;
   }
 
   var aProps = Object.getOwnPropertyNames(a);
   var bProps = Object.getOwnPropertyNames(b);
 
-  if (aProps.length != bProps.length) {
+  if (aProps.length !== bProps.length) {
     return false;
   }
 
@@ -191,7 +191,7 @@ fileScannerSync({
 
           tSuite.fileName = path.basename(relativePath);
           const pathImport = path.join('..' + path.sep, relativePath);
-          let funcsToBeTested = getImports(pathImport);
+          const funcsToBeTested = getImports(pathImport);
 
           if (!tests[testPath]) {
             tests[testPath] = JSON.parse(fs.readFileSync(testPath, 'utf-8'));
