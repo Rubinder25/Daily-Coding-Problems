@@ -6,6 +6,7 @@ const testSpecified = process.argv[2];
 let totalFilesTested = 0;
 let totalTestsPassed = 0;
 let totalTestsFailed = 0;
+const tests = [];
 
 function escapeRegExp(s) {
   return s.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&');
@@ -14,7 +15,7 @@ function escapeRegExp(s) {
 function arrContains(list, val) {
   let isContains = false;
 
-  list.forEach((ele) => {
+  list.forEach(ele => {
     let eleRegExp;
 
     if (typeof ele === 'string') {
@@ -37,7 +38,10 @@ function isDir(dirPath) {
 }
 
 function fileScannerSync(args) {
-  if (fs.existsSync(args.path) && !arrContains(args.excludeList, path.basename(args.path))) {
+  if (
+    fs.existsSync(args.path) &&
+    !arrContains(args.excludeList, path.basename(args.path))
+  ) {
     if (!isDir(args.path)) {
       args.callback(path.normalize(args.path), false);
       return;
@@ -45,7 +49,7 @@ function fileScannerSync(args) {
 
     const dirList = fs.readdirSync(args.path);
 
-    dirList.forEach((item) => {
+    dirList.forEach(item => {
       if (!arrContains(args.excludeList, path.basename(item))) {
         const relativePath = path.join(args.path, item);
 
@@ -113,12 +117,12 @@ function runTest(test, func) {
 
 function displayTestSuite(tSuite) {
   process.stdout.write(`\nTest: ${tSuite.fileName} => ${tSuite.funcName}\n\n`);
-  tSuite.tests.forEach((test) => {
+  tSuite.tests.forEach(test => {
     if (test.hasPassed) {
       process.stdout.write(
-        `Test: ${test.desc} \u2713 | ${test.args.join(', ')} => ${test.exp} in ${
-          test.timeTaken
-        } ms\n`,
+        `Test: ${test.desc} \u2713 | ${test.args.join(', ')} => ${
+          test.exp
+        } in ${test.timeTaken} ms\n`,
       );
     } else {
       process.stdout.write(
@@ -135,11 +139,32 @@ function displayTestSuite(tSuite) {
   );
 }
 
-function displayFinalStats(totalFilesTested, totalTestsPassed, totalTestsFailed) {
+function displayFinalStats(
+  totalFilesTested,
+  totalTestsPassed,
+  totalTestsFailed,
+) {
   process.stdout.write(`\nTotal files tested: ${totalFilesTested}\n\n`);
-  process.stdout.write(`Total tests ran: ${totalTestsPassed + totalTestsFailed}\n`);
+  process.stdout.write(
+    `Total tests ran: ${totalTestsPassed + totalTestsFailed}\n`,
+  );
   process.stdout.write(`Passed: ${totalTestsPassed}\n`);
   process.stdout.write(`Failed: ${totalTestsFailed}\n`);
+}
+
+function getImports(pathFile) {
+  const importTobeTested = require(pathFile);
+  let funcsToBeTested = [];
+
+  if (typeof importTobeTested === 'function') {
+    funcsToBeTested.push(importTobeTested);
+  } else if (Array.isArray(importTobeTested)) {
+    funcsToBeTested = Object.assign([], importTobeTested);
+  } else {
+    throw `${tSuite.fileName} doesn't export a function or array or functions`;
+  }
+
+  return funcsToBeTested;
 }
 
 fileScannerSync({
@@ -148,41 +173,46 @@ fileScannerSync({
   excludeList: ['tests', '.git'],
   callback: (relativePath, isDir) => {
     if (!isDir) {
-      const tests = [];
-      const tSuite = {
-        fileName: '',
-        funcName: '',
-        tests: [],
-      };
-
       if (
         path.extname(relativePath) === '.js' &&
-        (testSpecified === undefined || relativePath.indexOf(testSpecified) !== -1)
+        (testSpecified === undefined ||
+          relativePath.indexOf(testSpecified) !== -1)
       ) {
         const testPath = path.join(path.dirname(relativePath), 'test.json');
 
         if (fs.existsSync(testPath)) {
           totalFilesTested++;
-          const funcToBeTested = require(path.join('..' + path.sep, relativePath));
+
+          const tSuite = {
+            fileName: '',
+            funcName: '',
+            tests: [],
+          };
+
+          tSuite.fileName = path.basename(relativePath);
+          const pathImport = path.join('..' + path.sep, relativePath);
+          let funcsToBeTested = getImports(pathImport);
 
           if (!tests[testPath]) {
             tests[testPath] = JSON.parse(fs.readFileSync(testPath, 'utf-8'));
           }
 
-          tSuite.fileName = path.basename(relativePath);
-          tSuite.funcName = funcToBeTested.name;
+          funcsToBeTested.forEach((func, index) => {
+            tSuite.funcName = func.name;
 
-          tests[testPath].tests.forEach((test) => {
-            const testRes = runTest(test, funcToBeTested);
-            tSuite.tests.push(Object.assign(test, testRes));
+            tests[testPath].tests.forEach(test => {
+              const testRes = runTest(test, func);
+              tSuite.tests.push(Object.assign(test, testRes));
 
-            if (testRes.hasPassed) {
-              totalTestsPassed++;
-            } else {
-              totalTestsFailed++;
-            }
+              if (testRes.hasPassed) {
+                totalTestsPassed++;
+              } else {
+                totalTestsFailed++;
+              }
+            });
+            displayTestSuite(tSuite);
+            tSuite.tests = [];
           });
-          displayTestSuite(tSuite);
         }
       }
     }
