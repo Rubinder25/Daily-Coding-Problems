@@ -161,7 +161,7 @@ function getImports(pathFile) {
   } else if (Array.isArray(importTobeTested)) {
     funcsToBeTested = Object.assign([], importTobeTested);
   } else {
-    throw `${tSuite.fileName} doesn't export a function or array or functions`;
+    throw `${tSuite.fileName} doesn't export a function or array of functions`;
   }
 
   return funcsToBeTested;
