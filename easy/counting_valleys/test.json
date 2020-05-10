@@ -1,0 +1,10 @@
+{
+  "title": "countingValleys",
+  "tests": [
+    {
+      "desc": 1,
+      "args": [8, "UDDDUDUU"],
+      "exp": 1
+    }
+  ]
+}
