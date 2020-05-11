@@ -1,0 +1,15 @@
+{
+  "title": "jumpingOnTheClouds",
+  "tests": [
+    {
+      "desc": 1,
+      "args": [7, [0, 0, 1, 0, 0, 1, 0]],
+      "exp": 4
+    },
+    {
+      "desc": 2,
+      "args": [6, [0, 0, 0, 0, 1, 0]],
+      "exp": 3
+    }
+  ]
+}

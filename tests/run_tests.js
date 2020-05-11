@@ -15,7 +15,7 @@ function escapeRegExp(s) {
 function arrContains(list, val) {
   let isContains = false;
 
-  list.forEach(ele => {
+  list.forEach((ele) => {
     let eleRegExp;
 
     if (typeof ele === 'string') {
@@ -49,7 +49,7 @@ function fileScannerSync(args) {
 
     const dirList = fs.readdirSync(args.path);
 
-    dirList.forEach(item => {
+    dirList.forEach((item) => {
       if (!arrContains(args.excludeList, path.basename(item))) {
         const relativePath = path.join(args.path, item);
 
@@ -117,7 +117,7 @@ function runTest(test, func) {
 
 function displayTestSuite(tSuite) {
   process.stdout.write(`\nTest: ${tSuite.fileName} => ${tSuite.funcName}\n\n`);
-  tSuite.tests.forEach(test => {
+  tSuite.tests.forEach((test) => {
     if (test.hasPassed) {
       process.stdout.write(
         `Test: ${test.desc} \u2713 | ${test.args.join(', ')} => ${
@@ -133,9 +133,9 @@ function displayTestSuite(tSuite) {
 
   const totalTime = tSuite.tests.reduce((a, b) => a + b.timeTaken, 0);
   process.stdout.write(
-    `\nTotal Time: ${totalTime} ms, Avg Time: ${totalTime /
-      tSuite.tests
-        .length} ms\n_______________________________________________________________________________\n`,
+    `\nTotal Time: ${totalTime} ms, Avg Time: ${
+      totalTime / tSuite.tests.length
+    } ms\n_______________________________________________________________________________\n`,
   );
 }
 
@@ -200,7 +200,7 @@ fileScannerSync({
         funcsToBeTested.forEach((func, index) => {
           tSuite.funcName = func.name;
 
-          tests[testPath].tests.forEach(test => {
+          tests[testPath].tests.forEach((test) => {
             const testRes = runTest(test, func);
             tSuite.tests.push(Object.assign(test, testRes));
 
